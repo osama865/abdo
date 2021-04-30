@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Demo: Add custom markers in Mapbox GL JS</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      href="https://fonts.googleapis.com/css?family=Open+Sans"
+      rel="stylesheet"
+    />
+    <script src="https://api.tiles.mapbox.com/mapbox-gl-js/v2.2.0/mapbox-gl.js"></script>
+    <link
+      href="https://api.tiles.mapbox.com/mapbox-gl-js/v2.2.0/mapbox-gl.css"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+      #map {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 60%;
+      }
+      .marker {
+        background-image: url("mapbox-icon.png");
+        background-size: cover;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        cursor: pointer;
+      }
+      .mapboxgl-popup {
+        max-width: 200px;
+      }
+      .mapboxgl-popup-content {
+        text-align: center;
+        font-family: "Open Sans", sans-serif;
+      }
+
+      .add-marker {
+        display: none;
+        position: absolute;
+        z-index: 0;
+      }
+
+      .button {
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div id="map"></div>
+      <div id="add-marker">
+        <button class="button" onclick="addMarker">ADD MARKER HERE ?</button>
+      </div>
+    </div>
+
+    <script>
+      mapboxgl.accessToken =
+        "pk.eyJ1Ijoib3NhbWExMDAxIiwiYSI6ImNrbnNmd3I4cTByM2QydG8zODFubm8xZjEifQ.Gkr7JZRFyo_Ox0qrrmgqfQ";
+
+      var geojson = {
+        type: "FeatureCollection",
+        features: [
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [-77.032, 38.913],
+            },
+            properties: {
+              title: "ملابس للعيد",
+              description: "خمسة قطع فساتين بناتية وعشرة بناطيل اولادية",
+              address: "شمبات لفة جنوب شارع الموية ",
+              phoneNumber: "0906865415",
+            },
+          },
+          {
+            type: "Feature",
+            geometry: {
+              type: "Point",
+              coordinates: [-122.414, 37.776],
+            },
+            properties: {
+              title: "ملابس للعيد",
+              description: "خمسة قطع فساتين بناتية وعشرة بناطيل اولادية",
+              address: "شمبات لفة جنوب شارع الموية ",
+              phoneNumber: "0906865415",
+            },
+          },
+        ],
+      };
+
+      var map = new mapboxgl.Map({
+        container: "map",
+        style: "mapbox://styles/mapbox/light-v10",
+        center: [-96, 37.8],
+        zoom: 3,
+      });
+
+      function createPopup(config, lngLat, marker) {
+        var popup = new mapboxgl.Popup(config)
+          .setLngLat(lngLat)
+          .setHTML(
+            "<p>" +
+              marker.properties.title +
+              "</p>" +
+              "<p>" +
+              marker.properties.description +
+              "</p>" +
+              "<p>" +
+              marker.properties.address +
+              "</p>" +
+              "<p>" +
+              marker.properties.phoneNumber +
+              "</p>"
+          )
+          .addTo(map);
+
+        return popup;
+      }
+
+      // add marker to map
+      function addMarker(lngLat) {
+        console.log(lngLat);
+
+        // add the marker now
+        new mapboxgl.Marker({
+          draggable: true,
+          clickTolerance: 50,
+        })
+          .setLngLat(lngLat)
+          .setPopup(
+            new mapboxgl.Popup({ offset: 25 }).setHTML("<h2> hello there </h2>")
+          )
+          .addTo(map);
+      }
+
+      // remove a marker
+      function removeMarker(marker) {
+        marker.remove();
+      }
+
+      map.on("dblclick", function (e) {
+        console.log(e);
+        let position = e.lngLat;
+        // call the add marker fun and pass the lnglat as parama to creat a marker at that position
+        addMarker(position);
+      });
+
+      map.on("click", function (e) {
+        console.log(e);
+        console.log(document.getElementById("add-marker"));
+        document.getElementById("add-marker").style.display = "inline"
+        document.getElementById("add-marker").style = "z-index : 1"
+      });
+
+      map.on("drag", function (e) {
+        console.log(e);
+      });
+
+      // add markers to map
+      geojson.features.forEach(function (marker) {
+        // create a HTML element for each feature
+        var el = document.createElement("div");
+        el.className = "marker";
+
+        // make a marker for each feature and add it to the map
+        new mapboxgl.Marker(el)
+          .setLngLat(marker.geometry.coordinates)
+          .setPopup(
+            new mapboxgl.Popup({ offset: 50 }) // add popups
+              .setHTML(
+                "<p>" +
+                  marker.properties.title +
+                  "</p>" +
+                  "<p>" +
+                  marker.properties.description +
+                  "</p>" +
+                  "<p>" +
+                  marker.properties.address +
+                  "</p>" +
+                  "<p>" +
+                  marker.properties.phoneNumber +
+                  "</p>"
+              )
+          )
+          .addTo(map);
+      });
+    </script>
+  </body>
+</html>
